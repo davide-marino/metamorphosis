@@ -1,6 +1,6 @@
 var metamorphosis = function(str) {
 	var EOS = 5;
-	var results;
+	var __metamorphosis_token;
 	
 	var _init = function(str) {
 		var lookupCodes = ["!accept", "text", "startCode", "endCode", "startExpression"];
@@ -40,7 +40,7 @@ var metamorphosis = function(str) {
 	
 		var state = 0;
 		var buffered = false;
-		results = new Array();
+		__metamorphosis_token = new Array();
 		var token = "";
 		
 		for (var i = 0; i < str.length; i++) {
@@ -53,7 +53,7 @@ var metamorphosis = function(str) {
 				state = stateTable[state][currentRead];
 			} else if ((stateTable[state][currentRead] == -1) && (actionTable[state][currentRead] == 2)) {
 				buffered = true;
-				results.push({ type : lookupCodes[lookupTable[state][currentRead]], value : token});
+				__metamorphosis_token.push({ type : lookupCodes[lookupTable[state][currentRead]], value : token});
 				state = 0;
 				token = "";				
 			} else {
@@ -63,15 +63,15 @@ var metamorphosis = function(str) {
 				i--;
 			}
 		}
-		results.push({ type : lookupCodes[lookupTable[state][EOS]], value : token});
+		__metamorphosis_token.push({ type : lookupCodes[lookupTable[state][EOS]], value : token});
 		
 		var started = false;
 		var closed = true;
 		
-		for (i = 0; i < results.length; i++) {
-			var type = results[i].type;
+		for (i = 0; i < __metamorphosis_token.length; i++) {
+			var type = __metamorphosis_token[i].type;
 			if (type == "!accept") {
-				throw "Token not accepted: " + results[i].value;
+				throw "Token not accepted: " + __metamorphosis_token[i].value;
 			} else if (type == "startCode" || type == "startExpression") {
 				if (!closed) {
 					throw "previous tag not closed";
@@ -118,36 +118,43 @@ var metamorphosis = function(str) {
 		}
 	};
 	
-	var format = function(data) {
-		eval(parameterName + " = data;");
-	
-		var position = "inString";
-		
-		str = "(function(data) { var str = ''; ";
-		for (i = 0; i < results.length; i++) {
-			var type = results[i].type;
-			if (type == "startCode") {
-				position = "inCode";
-			} else if (type == "startExpression") {
-				position = "inExpression";
-			} else if (type == "endCode") {
-				position = "inString";
+	var render = function(__metamorphosis_data) {
+		if (__metamorphosis_data instanceof Object) {
+			for (var __metamorphosis_field in __metamorphosis_data) {
+				eval("var " + __metamorphosis_field + " = __metamorphosis_data[__metamorphosis_field]");
 			}
-			if (position == "inString" && type == "text") {
-				str += " str += '" + results[i].value.replace(/'/g, "\\\'").replace(/\n/g, "'+\n'")  + "';";
-			} else if (position == "inExpression" && type == "text") {
-				str += " str += " + results[i].value + ";";
-			} else if (position == "inCode" && type == "text") {
-				str += results[i].value;
+		} else if (__metamorphosis_data instanceof Array) {
+			eval("var values = __metamorphosis_data");
+		} else {
+			eval("var value = __metamorphosis_data");
+		}
+		var __metamorphosis_position = "inString";
+		
+		var __metamorphosis_str = "(function(__metamorphosis_data) { var __metamorphosis_str = ''; ";
+		for (var __metamorphosis_i = 0; __metamorphosis_i < __metamorphosis_token.length; __metamorphosis_i++) {
+			var __metamorphosis_type = __metamorphosis_token[__metamorphosis_i].type;
+			if (__metamorphosis_type == "startCode") {
+				__metamorphosis_position = "inCode";
+			} else if (__metamorphosis_type == "startExpression") {
+				__metamorphosis_position = "inExpression";
+			} else if (__metamorphosis_type == "endCode") {
+				__metamorphosis_position = "inString";
+			}
+			if (__metamorphosis_position == "inString" && __metamorphosis_type == "text") {
+				__metamorphosis_str += " __metamorphosis_str += '" + __metamorphosis_token[__metamorphosis_i].value.replace(/'/g, "\\\'").replace(/\n/g, "'+\n'")  + "';";
+			} else if (__metamorphosis_position == "inExpression" && __metamorphosis_type == "text") {
+				__metamorphosis_str += " __metamorphosis_str += " + __metamorphosis_token[__metamorphosis_i].value + ";";
+			} else if (__metamorphosis_position == "inCode" && __metamorphosis_type == "text") {
+				__metamorphosis_str += __metamorphosis_token[__metamorphosis_i].value;
 			}
 		}
-		str += " return str;}(data))";
-		return eval(str);
+		__metamorphosis_str += " return __metamorphosis_str;}(__metamorphosis_data))";
+		return eval(__metamorphosis_str);
 	}
 	
 	_init(str);
 	
 	return {
-		format : format
+		render : render
 	}; 
 }
