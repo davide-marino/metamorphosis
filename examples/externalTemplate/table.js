@@ -1,4 +1,12 @@
 $(document).ready(function() {
+	loadTemplate();
+});
+
+function loadTemplate() {
+	$.ajax({async: false, dataType: "html", url: "template.html", success: createAndRenderTemplate});
+}
+
+function createAndRenderTemplate(data) {
 	var companies = [
 		{ name: "Tecnolife", city: "Rome" },
 		{ name: "Google", city: "MountainView" },
@@ -6,7 +14,6 @@ $(document).ready(function() {
 		{ name: "Facebook", city: "Menlo Park" }
 	];
 
-	$("#rowsTemplate").load("template.html");
-	var template = new metamorphosis($("#rowsTemplate").html());
+	var template = new metamorphosis(data);
 	$("#myTable").append(template.render(companies));
-});
+}
