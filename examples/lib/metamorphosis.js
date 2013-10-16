@@ -141,7 +141,7 @@ var metamorphosis = function(str) {
 				__metamorphosis_position = "inString";
 			}
 			if (__metamorphosis_position == "inString" && __metamorphosis_type == "text") {
-				__metamorphosis_str += " __metamorphosis_str += '" + __metamorphosis_token[__metamorphosis_i].value.replace(/'/g, "\\\'").replace(/\n/g, "'+\n'")  + "';";
+				__metamorphosis_str += " __metamorphosis_str += '" + __metamorphosis_token[__metamorphosis_i].value.replace(/'/g, "\\\'").replace(/\r?\n|\r/g, "'+\n'")  + "';";
 			} else if (__metamorphosis_position == "inExpression" && __metamorphosis_type == "text") {
 				__metamorphosis_str += " __metamorphosis_str += " + __metamorphosis_token[__metamorphosis_i].value + ";";
 			} else if (__metamorphosis_position == "inCode" && __metamorphosis_type == "text") {
