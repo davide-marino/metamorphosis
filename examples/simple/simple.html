@@ -1,0 +1,11 @@
+<html>
+	<head>
+		<script src="../lib/metamorphosis.js" ></script>
+		<script>
+			var template = new metamorphosis("<tr><td><%=name%></td><td><%=lastName%></td></tr>");
+			var person = { name: "Davide Lorenzo", lastName: "Marino" };
+			var rendered = template.render(person);
+			alert(rendered);
+		</script>
+	</head>
+</html>
