@@ -119,12 +119,12 @@ var metamorphosis = function(str) {
 	};
 	
 	var render = function(__metamorphosis_data) {
-		if (__metamorphosis_data instanceof Object) {
+		if (__metamorphosis_data instanceof Array) {
+			eval("var values = __metamorphosis_data");
+		} else if (__metamorphosis_data instanceof Object) {
 			for (var __metamorphosis_field in __metamorphosis_data) {
 				eval("var " + __metamorphosis_field + " = __metamorphosis_data[__metamorphosis_field]");
 			}
-		} else if (__metamorphosis_data instanceof Array) {
-			eval("var values = __metamorphosis_data");
 		} else {
 			eval("var value = __metamorphosis_data");
 		}
@@ -141,7 +141,7 @@ var metamorphosis = function(str) {
 				__metamorphosis_position = "inString";
 			}
 			if (__metamorphosis_position == "inString" && __metamorphosis_type == "text") {
-				__metamorphosis_str += " __metamorphosis_str += '" + __metamorphosis_token[__metamorphosis_i].value.replace(/'/g, "\\\'").replace(/\n/g, "'+\n'")  + "';";
+				__metamorphosis_str += " __metamorphosis_str += '" + __metamorphosis_token[__metamorphosis_i].value.replace(/'/g, "\\\'").replace(/\r?\n|\r/g, "'+\n'")  + "';";
 			} else if (__metamorphosis_position == "inExpression" && __metamorphosis_type == "text") {
 				__metamorphosis_str += " __metamorphosis_str += " + __metamorphosis_token[__metamorphosis_i].value + ";";
 			} else if (__metamorphosis_position == "inCode" && __metamorphosis_type == "text") {
